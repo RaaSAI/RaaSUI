@@ -2,7 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import { ChatMessage } from './components/ChatMessage';
 import { ChatInput } from './components/ChatInput';
 import { EmailVerification } from './components/EmailVerification';
-import { ResearchTypeSelector } from './components/ResearchTypeSelector';
+import { SingleSelectComponent } from './components/SingleSelectComponent';
+import { MultiSelectComponent } from './components/MultiSelectComponent';
+import { PhaseIndicator } from './components/PhaseIndicator';
 import { useChatbot } from './hooks/useChatbot';
 import { Brain, MessageSquare } from 'lucide-react';
 
@@ -17,7 +19,8 @@ function App() {
     isCompleted,
     currentStepData,
     processUserInput,
-    handleResearchTypeSelect,
+    handleSingleSelect,
+    handleMultiSelect,
     handleVerificationComplete,
     handleResendVerification,
     verifyEmailCode,
@@ -37,8 +40,21 @@ function App() {
   }, [messages]);
 
   const showEmailVerification = emailVerification.email && !emailVerification.isVerified;
-  const showResearchTypeSelector = currentStepData?.id === 'research-type' && emailVerification.isVerified;
-  const showChatInput = !isCompleted && !showEmailVerification && !showResearchTypeSelector;
+  const showSingleSelect = currentStepData?.options && !currentStepData?.isMultiSelect && emailVerification.isVerified;
+  const showMultiSelect = currentStepData?.isMultiSelect && emailVerification.isVerified;
+  const showChatInput = !isCompleted && !showEmailVerification && !showSingleSelect && !showMultiSelect;
+
+  // Phase configuration
+  const phases = [
+    { number: 1, title: 'Basic Qualification', description: 'Email and company details' },
+    { number: 2, title: 'Business Context', description: 'Industry and business model' },
+    { number: 3, title: 'Research Scope', description: 'Objectives and drivers' },
+    { number: 4, title: 'Market Focus', description: 'Competitors and geography' },
+    { number: 5, title: 'Preferences', description: 'Timeline and frequency' },
+    { number: 6, title: 'Budget & Expectations', description: 'Budget and requirements' }
+  ];
+
+  const currentPhase = currentStepData?.phase || 1;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -56,6 +72,15 @@ function App() {
           </div>
         </div>
       </div>
+
+      {/* Phase Indicator */}
+      {emailVerification.isVerified && (
+        <PhaseIndicator
+          currentPhase={currentPhase}
+          totalPhases={6}
+          phases={phases}
+        />
+      )}
 
       {/* Chat Container */}
       <div className="max-w-4xl mx-auto">
@@ -87,18 +112,29 @@ function App() {
               </div>
             )}
 
-            {/* Research Type Selector */}
-            {showResearchTypeSelector && (
+            {/* Single Select Component */}
+            {showSingleSelect && (
               <div className="max-w-[80%] mx-auto">
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Choose Your Research Type
-                  </h3>
-                  <ResearchTypeSelector
-                    selectedType={clientData.researchType || ''}
-                    onTypeSelect={handleResearchTypeSelect}
-                  />
-                </div>
+                <SingleSelectComponent
+                  options={currentStepData.options || []}
+                  onSelectionComplete={(selectedId) => handleSingleSelect(currentStepData.id, selectedId)}
+                  title={currentStepData.question}
+                  allowOther={currentStepData.id === 'business-model'}
+                  otherPlaceholder="Please specify your business model"
+                />
+              </div>
+            )}
+
+            {/* Multi Select Component */}
+            {showMultiSelect && (
+              <div className="max-w-[80%] mx-auto">
+                <MultiSelectComponent
+                  options={currentStepData.options || []}
+                  maxSelections={currentStepData.maxSelections || 3}
+                  onSelectionComplete={(selectedIds) => handleMultiSelect(currentStepData.id, selectedIds)}
+                  title={currentStepData.question}
+                  subtitle={`Select up to ${currentStepData.maxSelections || 3} options that best describe your research objectives.`}
+                />
               </div>
             )}
             

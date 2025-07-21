@@ -372,24 +372,9 @@ const sendVerificationEmail = useCallback(async (email: string) => {
         }
       }
 
-      // Handle research type selection
-      if (currentStepData.id === 'research-type') {
-        if (trimmedInput.toLowerCase().includes('market')) {
-          setClientData(prev => ({ ...prev, researchType: 'market-research' }));
-          updateMessage(typingId, "Perfect! Market research is our specialty. We'll help you uncover valuable insights about your market.");
-          
-          setTimeout(() => {
-            const nextStepIndex = currentStep + 1;
-            if (nextStepIndex < onboardingSteps.length) {
-              setCurrentStep(nextStepIndex);
-              addMessage(onboardingSteps[nextStepIndex].question, 'bot');
-            } else {
-              completeOnboarding();
-            }
-          }, 1500);
-        } else {
-          updateMessage(typingId, "I understand you're interested in that type of research. For now, we're focusing on market research, but we'll be expanding our services soon!");
-        }
+      // Handle steps with options (single/multi select) - these should use the UI components
+      if (currentStepData.options && currentStepData.options.length > 0) {
+        updateMessage(typingId, "Please use the options above to make your selection.");
         setIsProcessing(false);
         return;
       }
@@ -421,15 +406,7 @@ const sendVerificationEmail = useCallback(async (email: string) => {
 
       // Move to next step or complete
       setTimeout(() => {
-        if (currentStep < onboardingSteps.length - 1) {
-          setCurrentStep(prev => {
-            const nextStep = prev + 1;
-            addMessage(onboardingSteps[nextStep].question, 'bot');
-            return nextStep;
-          });
-        } else {
-          completeOnboarding();
-        }
+        moveToNextStep();
       }, 1500);
 
     } catch (error) {
@@ -442,7 +419,7 @@ const sendVerificationEmail = useCallback(async (email: string) => {
 
   const completeOnboarding = useCallback(async () => {
     try {
-      const requiredFields = ['email', 'companyName', 'industry', 'researchType', 'researchTopic'];
+      const requiredFields = ['email', 'companyName', 'industry', 'businessModel', 'researchDriver'];
       const missingFields = requiredFields.filter(field => !clientData[field as keyof ClientData]);
       
       // commented out for now, need to fix this
@@ -455,8 +432,17 @@ const sendVerificationEmail = useCallback(async (email: string) => {
         email: clientData.email || '',
         companyName: clientData.companyName || '',
         industry: clientData.industry || '',
-        researchType: clientData.researchType || '',
-        researchTopic: clientData.researchTopic || '',
+        businessModel: clientData.businessModel || '',
+        businessModelOther: clientData.businessModelOther || '',
+        researchDriver: clientData.researchDriver || '',
+        researchObjectives: clientData.researchObjectives || [],
+        competitors: clientData.competitors || [],
+        geographicMarkets: clientData.geographicMarkets || [],
+        keyProducts: clientData.keyProducts || '',
+        updateFrequency: clientData.updateFrequency || '',
+        timeline: clientData.timeline || '',
+        budgetRange: clientData.budgetRange || '',
+        additionalRequirements: clientData.additionalRequirements || '',
         ipAddress: clientData.ipAddress || '',
         country: clientData.country || '',
         city: clientData.city || '',
@@ -482,14 +468,14 @@ const sendVerificationEmail = useCallback(async (email: string) => {
 
       setIsCompleted(true);
       addMessage(
-        `Thank you! I've collected all the information we need. Our research team will review your request and get back to you at ${clientData.email} within 24 hours with a detailed proposal for your ${clientData.researchTopic} research project.`,
+        `Thank you! I've collected all the information we need. Our research team will review your comprehensive requirements and get back to you at ${clientData.email} within 24 hours with a detailed proposal tailored to your ${clientData.researchDriver} research needs.`,
         'bot'
       );
     } catch (error) {
       console.error('Error sending to webhook:', error);
       setIsCompleted(true);
       addMessage(
-        `Thank you! I've collected all the information we need. Our research team will review your request and get back to you at ${clientData.email} within 24 hours with a detailed proposal for your ${clientData.researchTopic} research project.`,
+        `Thank you! I've collected all the information we need. Our research team will review your comprehensive requirements and get back to you at ${clientData.email} within 24 hours with a detailed proposal tailored to your research needs.`,
         'bot'
       );
     }
