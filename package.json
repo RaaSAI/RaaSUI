@@ -1,13 +1,14 @@
 {
   "name": "raas-ai-chatbot",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "export": "npm run build && echo 'Build complete! Upload the dist/ folder to your hosting provider.'"
   },
   "dependencies": {
     "lucide-react": "^0.344.0",
