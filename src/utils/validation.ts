@@ -86,6 +86,14 @@ export const validateAdditionalRequirements = (input: string): ValidationResult 
   return { isValid: true, extractedValue: trimmed };
 };
 
+export const validateResearchTopic = (input: string): ValidationResult => {
+  const trimmed = input.trim();
+  if (trimmed.length < 10) {
+    return { isValid: false, message: "Please provide more details about your research topic (at least 10 characters)." };
+  }
+  return { isValid: true, extractedValue: trimmed };
+};
+
 export const validateGeneric = (input: string): ValidationResult => {
   const trimmed = input.trim();
   if (trimmed.length < 1) {
