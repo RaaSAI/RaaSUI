@@ -319,6 +319,22 @@ const sendVerificationEmail = useCallback(async (email: string) => {
     }
   }, [emailVerification.email, sendVerificationEmail, addMessage]);
 
+  const moveToNextStep = useCallback(() => {
+    const nextStep = currentStep + 1;
+    
+    if (nextStep >= onboardingSteps.length) {
+      // All steps completed, finish onboarding
+      completeOnboarding();
+      return;
+    }
+    
+    setCurrentStep(nextStep);
+    const nextStepData = onboardingSteps[nextStep];
+    
+    // Add the next question
+    addMessage(nextStepData.question, 'bot');
+  }, [currentStep, onboardingSteps, completeOnboarding, addMessage]);
+
   const processUserInput = useCallback(async (input: string) => {
     if (isCompleted || isProcessing || !input.trim()) return;
 
