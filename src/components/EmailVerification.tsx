@@ -62,6 +62,10 @@ export const EmailVerification: React.FC<EmailVerificationProps> = ({
     setTimeLeft(300);
     setIsCodeExpired(false);
     setVerificationCode('');
+    // Clear any existing error when resending
+    if (verificationError) {
+      // The parent component will handle clearing the error
+    }
     onResendVerification();
   };
 
@@ -92,14 +96,33 @@ export const EmailVerification: React.FC<EmailVerificationProps> = ({
               value={verificationCode}
               onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="Enter 6-digit code"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg font-mono tracking-wider"
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent text-center text-lg font-mono tracking-wider ${
+                verificationError 
+                  ? 'border-red-300 focus:ring-red-500 bg-red-50' 
+                  : 'border-gray-300 focus:ring-blue-500'
+              }`}
               maxLength={6}
               disabled={isVerifyingCode || isCodeExpired}
             />
+            
+            {/* Show error message directly under the input */}
+            {verificationError && (
+              <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                  <span className="text-red-700 text-sm">{verificationError}</span>
+                </div>
+              </div>
+            )}
+            
             <button
               onClick={handleCodeSubmit}
               disabled={verificationCode.length !== 6 || isVerifyingCode || isCodeExpired}
-              className="w-full mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center gap-2"
+              className={`w-full mt-3 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center gap-2 ${
+                verificationError
+                  ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500 disabled:bg-gray-300'
+                  : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 disabled:bg-gray-300'
+              } text-white`}
             >
               {isVerifyingCode ? (
                 <>
@@ -109,7 +132,7 @@ export const EmailVerification: React.FC<EmailVerificationProps> = ({
               ) : (
                 <>
                   <CheckCircle className="w-4 h-4" />
-                  Verify Code
+                  {verificationError ? 'Try Again' : 'Verify Code'}
                 </>
               )}
             </button>
@@ -147,20 +170,15 @@ export const EmailVerification: React.FC<EmailVerificationProps> = ({
           <button
             onClick={handleResend}
             disabled={!isCodeExpired && timeLeft > 240} // Allow resend after 1 minute
-            className="w-full px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:text-gray-400 disabled:border-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
+            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed transition-colors duration-200 ${
+              verificationError
+                ? 'text-red-600 border-red-600 hover:bg-red-50 focus:ring-red-500 disabled:text-gray-400 disabled:border-gray-300'
+                : 'text-blue-600 border-blue-600 hover:bg-blue-50 focus:ring-blue-500 disabled:text-gray-400 disabled:border-gray-300'
+            }`}
           >
-            {isCodeExpired ? 'Send New Code' : 'Resend Code'}
+            {isCodeExpired || verificationError ? 'Send New Code' : 'Resend Code'}
           </button>
         </div>
-
-        {verificationError && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-red-600" />
-              <span className="text-red-700 text-sm">{verificationError}</span>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
