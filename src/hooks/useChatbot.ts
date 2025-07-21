@@ -6,9 +6,9 @@ import { validateEmail, validateCompanyName, validateIndustry, validateResearchT
 import { fetchIpGeoData } from '../utils/ipGeo';
 
 // n8n webhook URLs
-const SEND_VERIFICATION_WEBHOOK = 'https://shajobland.app.n8n.cloud/webhook/send-verification-email';
-const VERIFY_CODE_WEBHOOK = 'https://shajobland.app.n8n.cloud/webhook/verify-email';
-const FINAL_WEBHOOK_URL = 'https://shajobland.app.n8n.cloud/webhook/client-onboarding';
+const SEND_VERIFICATION_WEBHOOK = 'https://sharifaistarttest1.app.n8n.cloud/webhook/send-verification-email';
+const VERIFY_CODE_WEBHOOK = 'https://sharifaistarttest1.app.n8n.cloud/webhook/verify-email';
+const FINAL_WEBHOOK_URL = 'https://sharifaistarttest1.app.n8n.cloud/webhook/client-onboarding';
 
 export const useChatbot = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -30,6 +30,8 @@ export const useChatbot = () => {
   const onboardingSteps: OnboardingStep[] = [
     {
       id: 'welcome',
+      phase: 1,
+      phaseTitle: 'Basic Qualification',
       field: 'email',
       question: "Welcome to our Research as a Service platform! We help businesses get valuable insights through professional research. To get started, please provide your email address.",
       placeholder: "Enter your email address",
@@ -38,6 +40,8 @@ export const useChatbot = () => {
     },
     {
       id: 'company-name',
+      phase: 1,
+      phaseTitle: 'Basic Qualification',
       field: 'companyName',
       question: "Great! What's your company name?",
       placeholder: "Enter your company name",
@@ -46,6 +50,8 @@ export const useChatbot = () => {
     },
     {
       id: 'industry',
+      phase: 2,
+      phaseTitle: 'Business Context',
       field: 'industry',
       question: "What industry or business sector is your company in?",
       placeholder: "e.g., Technology, Healthcare, Finance",
@@ -53,25 +59,40 @@ export const useChatbot = () => {
       suggestions: ['Technology', 'Healthcare', 'Finance', 'Retail', 'Manufacturing', 'Education', 'Others']
     },
     {
-      id: 'research-type',
-      field: 'researchType',
-      question: "What type of research are you looking for?",
+      id: 'business-model',
+      phase: 2,
+      phaseTitle: 'Business Context',
+      field: 'businessModel',
+      question: "What type of business model best describes your company?",
       placeholder: "",
       validation: () => ({ isValid: true }),
-      suggestions: []
+      suggestions: [],
+      options: [
+        { id: 'b2b-software', label: 'B2B Software', description: 'Software solutions for businesses' },
+        { id: 'ecommerce', label: 'E-commerce', description: 'Online retail and marketplace' },
+        { id: 'professional-services', label: 'Professional Services', description: 'Consulting, legal, accounting, etc.' },
+        { id: 'manufacturing', label: 'Manufacturing', description: 'Physical product manufacturing' },
+        { id: 'healthcare', label: 'Healthcare', description: 'Medical services and products' },
+        { id: 'financial-services', label: 'Financial Services', description: 'Banking, insurance, fintech' },
+        { id: 'other', label: 'Other', description: 'Different business model' }
+      ]
     },
     {
-      id: 'research-topic',
-      field: 'researchTopic',
-      question: "Tell me about your research topic. What specific insights are you looking for?",
-      placeholder: "Describe your research needs in detail",
-      validation: validateResearchTopic,
-      suggestions: [
-        'Market size and growth potential',
-        'Customer behavior analysis',
-        'Industry trends and forecasts',
-        'Product market fit research', 
-        'Others'
+      id: 'research-driver',
+      phase: 3,
+      phaseTitle: 'Research Scope & Objectives',
+      field: 'researchDriver',
+      question: "What's driving your need for research?",
+      placeholder: "",
+      validation: () => ({ isValid: true }),
+      suggestions: [],
+      options: [
+        { id: 'new-market', label: 'New Market Entry', description: 'Exploring new markets or segments' },
+        { id: 'competitive-intelligence', label: 'Competitive Intelligence', description: 'Understanding competitor strategies' },
+        { id: 'product-launch', label: 'Product Launch', description: 'Supporting new product introduction' },
+        { id: 'strategic-planning', label: 'Strategic Planning', description: 'Long-term business planning' },
+        { id: 'investment-decision', label: 'Investment Decision', description: 'Due diligence and investment analysis' },
+        { id: 'performance-benchmarking', label: 'Performance Benchmarking', description: 'Comparing against industry standards' }
       ]
     }
   ];
@@ -319,104 +340,6 @@ const sendVerificationEmail = useCallback(async (email: string) => {
     }
   }, [emailVerification.email, sendVerificationEmail, addMessage]);
 
-  const processUserInput = useCallback(async (input: string) => {
-    if (isCompleted || isProcessing || !input.trim()) return;
-
-    const trimmedInput = input.trim();
-    setIsProcessing(true);
-    
-    // Add user message
-    addMessage(trimmedInput, 'user');
-
-    // Add typing indicator for bot response
-    const typingId = addMessage('', 'bot', true);
-
-    try {
-      const currentStepData = onboardingSteps[currentStep];
-      
-      // Handle email verification step
-      if (currentStepData.id === 'welcome' && !emailVerification.isVerified) {
-        // If user has already provided email and we're waiting for verification code
-        if (emailVerification.email && !emailVerification.isVerified) {
-          // Check if input looks like a verification code (6 digits) or "resend"
-          if (trimmedInput.toLowerCase().includes('resend') || trimmedInput.toLowerCase().includes('new code')) {
-            updateMessage(typingId, `Sending a new verification code to ${emailVerification.email}...`);
-            await handleEmailVerification(emailVerification.email);
-            setIsProcessing(false);
-            return;
-          } else if (/^\d{6}$/.test(trimmedInput)) {
-            // Handle 6-digit verification code
-            updateMessage(typingId, "Verifying your code...");
-            await handleVerificationCodeInput(trimmedInput);
-            setIsProcessing(false);
-            return;
-          } else {
-            updateMessage(typingId, "Please enter the 6-digit verification code from your email, or type 'resend' to get a new code.");
-            setIsProcessing(false);
-            return;
-          }
-        } else {
-          // Handle initial email input
-          const validation = validateEmail(trimmedInput);
-          
-          if (!validation.isValid) {
-            updateMessage(typingId, validation.message || "Please provide a valid email address.");
-            setIsProcessing(false);
-            return;
-          }
-
-          updateMessage(typingId, "Thank you! I'm sending a verification email now...");
-          await handleEmailVerification(validation.extractedValue!);
-          setIsProcessing(false);
-          return;
-        }
-      }
-
-      // Handle steps with options (single/multi select) - these should use the UI components
-      if (currentStepData.options && currentStepData.options.length > 0) {
-        updateMessage(typingId, "Please use the options above to make your selection.");
-        setIsProcessing(false);
-        return;
-      }
-
-      // Handle other steps
-      const validation = currentStepData.validation(trimmedInput);
-      
-      if (!validation.isValid) {
-        updateMessage(typingId, validation.message || "I didn't quite understand that. Could you please try again?");
-        setIsProcessing(false);
-        return;
-      }
-
-      // Update client data
-      const extractedValue = validation.extractedValue || trimmedInput;
-      setClientData(prev => ({ 
-        ...prev, 
-        [currentStepData.field]: extractedValue
-      }));
-
-      // Generate AI response
-      const aiResponse = await anthropicService.generateResponse(
-        trimmedInput, 
-        `User provided: ${extractedValue} for ${currentStepData.field}. Current step: ${currentStep + 1}/${onboardingSteps.length}`,
-        currentStepData.id
-      );
-      
-      updateMessage(typingId, aiResponse);
-
-      // Move to next step or complete
-      setTimeout(() => {
-        moveToNextStep();
-      }, 1500);
-
-    } catch (error) {
-      console.error('Error processing input:', error);
-      updateMessage(typingId, "I apologize, but I encountered an error. Please try again.");
-    }
-
-    setIsProcessing(false);
-  }, [currentStep, isCompleted, isProcessing, emailVerification.isVerified, addMessage, updateMessage, anthropicService, onboardingSteps, handleEmailVerification]);
-
   const completeOnboarding = useCallback(async () => {
     try {
       const requiredFields = ['email', 'companyName', 'industry', 'businessModel', 'researchDriver'];
@@ -480,6 +403,219 @@ const sendVerificationEmail = useCallback(async (email: string) => {
       );
     }
   }, [clientData, addMessage]);
+
+  const moveToNextStep = useCallback(() => {
+    setCurrentStep(prev => {
+      const nextStep = prev + 1;
+      if (nextStep < onboardingSteps.length) {
+        addMessage(onboardingSteps[nextStep].question, 'bot');
+        return nextStep;
+      } else {
+        // If we've completed all steps, trigger completion
+        completeOnboarding();
+        return prev;
+      }
+    });
+  }, [addMessage, onboardingSteps, completeOnboarding]);
+
+  const processUserInput = useCallback(async (input: string) => {
+    if (isCompleted || isProcessing || !input.trim()) return;
+
+    const trimmedInput = input.trim();
+    setIsProcessing(true);
+    
+    // Add user message
+    addMessage(trimmedInput, 'user');
+
+    // Add typing indicator for bot response
+    const typingId = addMessage('', 'bot', true);
+
+    try {
+      const currentStepData = onboardingSteps[currentStep];
+      
+      // Handle email verification step
+      if (currentStepData.id === 'welcome' && !emailVerification.isVerified) {
+        // If user has already provided email and we're waiting for verification code
+        if (emailVerification.email && !emailVerification.isVerified) {
+          // Check if input looks like a verification code (6 digits) or "resend"
+          if (trimmedInput.toLowerCase().includes('resend') || trimmedInput.toLowerCase().includes('new code')) {
+            updateMessage(typingId, `Sending a new verification code to ${emailVerification.email}...`);
+            await handleEmailVerification(emailVerification.email);
+            setIsProcessing(false);
+            return;
+          } else if (/^\d{6}$/.test(trimmedInput)) {
+            // Handle 6-digit verification code
+            updateMessage(typingId, "Verifying your code...");
+            await handleVerificationCodeInput(trimmedInput);
+            setIsProcessing(false);
+            return;
+          } else {
+            updateMessage(typingId, "Please enter the 6-digit verification code from your email, or type 'resend' to get a new code.");
+            setIsProcessing(false);
+            return;
+          }
+        } else {
+          // Handle initial email input
+          const validation = validateEmail(trimmedInput);
+          
+          if (!validation.isValid) {
+            updateMessage(typingId, validation.message || "Please provide a valid email address.");
+            setIsProcessing(false);
+            return;
+          }
+
+          updateMessage(typingId, "Thank you! I'm sending a verification email now...");
+          await handleEmailVerification(validation.extractedValue as string);
+          setIsProcessing(false);
+          return;
+        }
+      }
+
+      // Handle steps with options (single/multi select) - these should use the UI components
+      if (currentStepData.options && currentStepData.options.length > 0) {
+        updateMessage(typingId, "Please use the options above to make your selection.");
+        setIsProcessing(false);
+        return;
+      }
+
+      // Handle other steps
+      const validation = currentStepData.validation(trimmedInput);
+      
+      if (!validation.isValid) {
+        updateMessage(typingId, validation.message || "I didn't quite understand that. Could you please try again?");
+        setIsProcessing(false);
+        return;
+      }
+
+      // Update client data
+      const extractedValue = validation.extractedValue || trimmedInput;
+      setClientData(prev => ({ 
+        ...prev, 
+        [currentStepData.field]: extractedValue
+      }));
+
+      // Generate AI response
+      const aiResponse = await anthropicService.generateResponse(
+        trimmedInput, 
+        `User provided: ${extractedValue} for ${currentStepData.field}. Current step: ${currentStep + 1}/${onboardingSteps.length}`,
+        currentStepData.id
+      );
+      
+      updateMessage(typingId, aiResponse);
+
+      // Move to next step or complete
+      setTimeout(() => {
+        moveToNextStep();
+      }, 1500);
+
+    } catch (error) {
+      console.error('Error processing input:', error);
+      updateMessage(typingId, "I apologize, but I encountered an error. Please try again.");
+    }
+
+    setIsProcessing(false);
+  }, [currentStep, isCompleted, isProcessing, emailVerification.isVerified, addMessage, updateMessage, anthropicService, onboardingSteps, handleEmailVerification, moveToNextStep]);
+
+  const handleSingleSelect = useCallback((stepId: string, selectedId: string) => {
+    const currentStepData = onboardingSteps[currentStep];
+    if (!currentStepData || currentStepData.id !== stepId) return;
+
+    let selectedValue = selectedId;
+    let displayValue = selectedId;
+
+    // Handle "other" option
+    if (selectedId.startsWith('other:')) {
+      selectedValue = selectedId.substring(6); // Remove "other:" prefix
+      displayValue = selectedValue;
+    } else {
+      // Find the option label for display
+      const option = currentStepData.options?.find(opt => opt.id === selectedId);
+      displayValue = option?.label || selectedId;
+    }
+
+    // Update client data
+    setClientData(prev => ({ 
+      ...prev, 
+      [currentStepData.field]: selectedValue
+    }));
+
+    // Add user message showing selection
+    addMessage(displayValue, 'user');
+
+    // Add bot response
+    const typingId = addMessage('', 'bot', true);
+    
+    setTimeout(async () => {
+      try {
+        const aiResponse = await anthropicService.generateResponse(
+          displayValue, 
+          `User selected: ${displayValue} for ${currentStepData.field}. Current step: ${currentStep + 1}/${onboardingSteps.length}`,
+          currentStepData.id
+        );
+        
+        updateMessage(typingId, aiResponse);
+
+        // Move to next step
+        setTimeout(() => {
+          moveToNextStep();
+        }, 1500);
+      } catch (error) {
+        console.error('Error generating AI response:', error);
+        updateMessage(typingId, "Thank you for your selection! Let's continue.");
+        
+        setTimeout(() => {
+          moveToNextStep();
+        }, 1000);
+      }
+    }, 500);
+  }, [currentStep, onboardingSteps, addMessage, updateMessage, anthropicService, moveToNextStep]);
+
+  const handleMultiSelect = useCallback((stepId: string, selectedIds: string[]) => {
+    const currentStepData = onboardingSteps[currentStep];
+    if (!currentStepData || currentStepData.id !== stepId) return;
+
+    // Get display values for selected options
+    const selectedOptions = selectedIds.map(id => {
+      const option = currentStepData.options?.find(opt => opt.id === id);
+      return option?.label || id;
+    });
+
+    // Update client data
+    setClientData(prev => ({ 
+      ...prev, 
+      [currentStepData.field]: selectedIds
+    }));
+
+    // Add user message showing selections
+    addMessage(selectedOptions.join(', '), 'user');
+
+    // Add bot response
+    const typingId = addMessage('', 'bot', true);
+    
+    setTimeout(async () => {
+      try {
+        const aiResponse = await anthropicService.generateResponse(
+          selectedOptions.join(', '), 
+          `User selected: ${selectedOptions.join(', ')} for ${currentStepData.field}. Current step: ${currentStep + 1}/${onboardingSteps.length}`,
+          currentStepData.id
+        );
+        
+        updateMessage(typingId, aiResponse);
+
+        // Move to next step
+        setTimeout(() => {
+          moveToNextStep();
+        }, 1500);
+      } catch (error) {
+        console.error('Error generating AI response:', error);
+        updateMessage(typingId, "Thank you for your selections! Let's continue.");
+        
+        setTimeout(() => {
+          moveToNextStep();
+        }, 1000);
+      }
+    }, 500);
+  }, [currentStep, onboardingSteps, addMessage, updateMessage, anthropicService, moveToNextStep]);
 
   const handleResearchTypeSelect = useCallback((type: 'market-research' | 'academic-research' | 'competitive-analysis') => {
     if (type !== 'market-research') return;
@@ -545,6 +681,8 @@ const sendVerificationEmail = useCallback(async (email: string) => {
     isCompleted,
     currentStepData: onboardingSteps[currentStep],
     processUserInput,
+    handleSingleSelect,
+    handleMultiSelect,
     handleResearchTypeSelect,
     handleVerificationComplete,
     handleResendVerification,
