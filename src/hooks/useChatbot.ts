@@ -457,17 +457,9 @@ const sendVerificationEmail = useCallback(async (email: string) => {
       console.log('Final webhook response:', result);
 
       setIsCompleted(true);
-      addMessage(
-        `Thank you! I've collected all the information we need. Our research team will review your comprehensive requirements and get back to you at ${clientData.email} within 24 hours with a detailed proposal tailored to your ${clientData.researchDriver} research needs.`,
-        'bot'
-      );
     } catch (error) {
       console.error('Error sending to webhook:', error);
       setIsCompleted(true);
-      addMessage(
-        `Thank you! I've collected all the information we need. Our research team will review your comprehensive requirements and get back to you at ${clientData.email} within 24 hours with a detailed proposal tailored to your research needs.`,
-        'bot'
-      );
     }
   }, [clientData, addMessage]);
 
