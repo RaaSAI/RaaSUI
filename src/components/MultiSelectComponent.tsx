@@ -43,6 +43,13 @@ export const MultiSelectComponent: React.FC<MultiSelectComponentProps> = ({
 
   return (
     <div className="max-w-2xl mx-auto">
+      {title && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
+          {subtitle && <p className="text-sm text-gray-600">{subtitle}</p>}
+        </div>
+      )}
+      
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         {/* Selection Counter */}
         <div className="px-6 pt-6 pb-4">
