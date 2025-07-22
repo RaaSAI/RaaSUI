@@ -191,10 +191,14 @@ const sendVerificationEmail = useCallback(async (email: string) => {
 
     console.log('Verification response status:', response.status);
 
-    if (!response.ok) {
+    // Handle different HTTP status codes
+    if (response.status === 400) {
+      console.log('Bad request - invalid verification code');
+      return false;
+    } else if (!response.ok) {
       const errorText = await response.text();
       console.error('Verification HTTP error:', errorText);
-      return false;
+      throw new Error(`Verification failed: ${response.status}`);
     }
 
     // Safe JSON parsing
@@ -219,7 +223,8 @@ const sendVerificationEmail = useCallback(async (email: string) => {
     } else {
       const responseText = await response.text();
       console.log('Non-JSON verification response:', responseText);
-      return false;
+      // For non-JSON responses, assume success if status is 200
+      return response.status === 200;
     }
 
     console.log('Parsed verification response:', result);
@@ -298,26 +303,18 @@ const sendVerificationEmail = useCallback(async (email: string) => {
         setEmailVerification(prev => ({ 
           ...prev, 
           isVerifying: false,
-          verificationError: 'Invalid verification code. Please check your email and try again.'
+          verificationError: 'The verification code you entered is incorrect or has expired. Please check your email for the correct 6-digit code and try again.'
         }));
         
-        addMessage(
-          "❌ The verification code you entered is incorrect or has expired. Please check your email for the correct 6-digit code and try again. If you need a new code, type 'resend'!",
-          'bot'
-        );
+        // Don't add a chat message here - let the EmailVerification component handle the error display
       }
     } catch (error) {
       console.error('Exception during verification:', error);
       setEmailVerification(prev => ({ 
         ...prev, 
         isVerifying: false,
-        verificationError: 'Verification failed. Please try again.'
+        verificationError: 'There was a technical issue verifying your code. Please try again or request a new code.'
       }));
-      
-      addMessage(
-        "⚠️ There was an issue verifying your code. Please try again or type 'resend' to get a new verification email.",
-        'bot'
-      );
     }
   }, [emailVerification.email, verifyEmailCode, addMessage, onboardingSteps]);
 
@@ -334,6 +331,9 @@ const sendVerificationEmail = useCallback(async (email: string) => {
   }, [emailVerification.email, addMessage, onboardingSteps]);
 
   const handleResendVerification = useCallback(() => {
+    // Clear any existing verification errors
+    setEmailVerification(prev => ({ ...prev, verificationError: undefined }));
+    
     if (emailVerification.email) {
       sendVerificationEmail(emailVerification.email);
       addMessage(`Verification email resent to ${emailVerification.email}`, 'bot');
