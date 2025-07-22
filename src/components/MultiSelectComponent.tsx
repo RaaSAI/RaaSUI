@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Check, X } from 'lucide-react';
 
 interface Option {
   id: string;
@@ -42,68 +41,68 @@ export const MultiSelectComponent: React.FC<MultiSelectComponentProps> = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-        {subtitle && <p className="text-gray-600 text-sm">{subtitle}</p>}
-        <p className="text-sm text-blue-600 mt-2">
-          Select up to {maxSelections} options ({selectedOptions.length}/{maxSelections} selected)
-        </p>
-      </div>
+    <div className="max-w-2xl mx-auto">
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        {/* Header */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
+          {subtitle && <p className="text-sm text-gray-600 mb-2">{subtitle}</p>}
+          <p className="text-sm text-blue-600">
+            Select up to {maxSelections} options ({selectedOptions.length}/{maxSelections} selected)
+          </p>
+        </div>
 
-      <div className="space-y-3 mb-6">
-        {options.map((option) => {
-          const isSelected = selectedOptions.includes(option.id);
-          const isDisabled = !isSelected && selectedOptions.length >= maxSelections;
+        {/* Options */}
+        <div className="space-y-3 mb-6">
+          {options.map((option) => {
+            const isSelected = selectedOptions.includes(option.id);
+            const isDisabled = !isSelected && selectedOptions.length >= maxSelections;
 
-          return (
-            <button
-              key={option.id}
-              onClick={() => handleOptionToggle(option.id)}
-              disabled={isDisabled}
-              className={`w-full p-4 rounded-lg border-2 text-left transition-all duration-200 ${
-                isSelected
-                  ? 'border-blue-500 bg-blue-50'
-                  : isDisabled
-                  ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-50'
-                  : 'border-gray-200 hover:border-gray-300 bg-white'
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center mt-0.5 ${
+            return (
+              <label
+                key={option.id}
+                className={`block p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
                   isSelected
-                    ? 'border-blue-500 bg-blue-500'
-                    : 'border-gray-300'
-                }`}>
-                  {isSelected && <Check className="w-3 h-3 text-white" />}
-                </div>
-                <div className="flex-1">
-                  <h4 className={`font-medium ${
-                    isSelected ? 'text-blue-900' : 'text-gray-900'
-                  }`}>
-                    {option.label}
-                  </h4>
-                  {option.description && (
-                    <p className={`text-sm mt-1 ${
-                      isSelected ? 'text-blue-700' : 'text-gray-600'
+                    ? 'border-blue-500 bg-blue-50'
+                    : isDisabled
+                    ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-50'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => handleOptionToggle(option.id)}
+                    disabled={isDisabled}
+                    className="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <div className="flex-1">
+                    <div className={`font-medium ${
+                      isSelected ? 'text-blue-900' : 'text-gray-900'
                     }`}>
-                      {option.description}
-                    </p>
-                  )}
+                      {option.label}
+                    </div>
+                    {option.description && (
+                      <div className={`text-sm mt-1 ${
+                        isSelected ? 'text-blue-700' : 'text-gray-600'
+                      }`}>
+                        {option.description}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+              </label>
+            );
+          })}
+        </div>
 
-      <div className="flex gap-3">
+        {/* Continue Button */}
         <button
           onClick={handleComplete}
           disabled={selectedOptions.length === 0}
-          className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center gap-2"
+          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
         >
-          <Check className="w-4 h-4" />
           Continue with {selectedOptions.length} selection{selectedOptions.length !== 1 ? 's' : ''}
         </button>
       </div>
