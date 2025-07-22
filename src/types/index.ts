@@ -13,19 +13,11 @@ export interface ClientData {
   researchObjectives: string[]; // Up to 3 selections
   
   // Phase 4: Competitive & Market Focus
-  competitors: string[];
+  competitors: string;
   geographicMarkets: string[];
-  keyProducts: string;
   
   // Phase 5: Research Preferences & Timeline
   updateFrequency: 'real-time' | 'daily' | 'weekly' | 'monthly' | 'quarterly';
-  timeline: 'immediately' | 'within-1-month' | 'within-3-months' | 'exploring';
-  
-  // Phase 6: Budget & Expectations
-  budgetRange: 'under-1k' | '1k-5k' | '5k-15k' | '15k-50k' | '50k-plus' | 'need-pricing';
-  
-  // Technical & Additional
-  additionalRequirements?: string;
   
   // System fields
   ipAddress?: string;

@@ -79,8 +79,8 @@ export const useChatbot = () => {
     },
     {
       id: 'research-driver',
-      phase: 3,
-      phaseTitle: 'Research Scope & Objectives',
+      phase: 2,
+      phaseTitle: 'Business Context',
       field: 'researchDriver',
       question: "What's driving your need for research?",
       placeholder: "",
@@ -93,6 +93,74 @@ export const useChatbot = () => {
         { id: 'strategic-planning', label: 'Strategic Planning', description: 'Long-term business planning' },
         { id: 'investment-decision', label: 'Investment Decision', description: 'Due diligence and investment analysis' },
         { id: 'performance-benchmarking', label: 'Performance Benchmarking', description: 'Comparing against industry standards' }
+      ]
+    },
+    {
+      id: 'research-objectives',
+      phase: 3,
+      phaseTitle: 'Research Objectives',
+      field: 'researchObjectives',
+      question: "Primary research objectives (select up to 3):",
+      placeholder: "",
+      validation: () => ({ isValid: true }),
+      suggestions: [],
+      isMultiSelect: true,
+      maxSelections: 3,
+      options: [
+        { id: 'market-size', label: 'Understand market size & opportunity', description: 'Market sizing and growth potential analysis' },
+        { id: 'competitor-analysis', label: 'Analyze competitor strategies & positioning', description: 'Competitive landscape and positioning' },
+        { id: 'pricing-trends', label: 'Track pricing trends & dynamics', description: 'Pricing analysis and market dynamics' },
+        { id: 'brand-sentiment', label: 'Monitor brand sentiment & reputation', description: 'Brand perception and reputation tracking' },
+        { id: 'emerging-trends', label: 'Identify emerging trends & threats', description: 'Market trends and potential disruptions' },
+        { id: 'customer-behavior', label: 'Customer behavior & preferences', description: 'Consumer insights and behavior patterns' },
+        { id: 'regulatory-developments', label: 'Regulatory & industry developments', description: 'Regulatory changes and industry updates' }
+      ]
+    },
+    {
+      id: 'competitors',
+      phase: 4,
+      phaseTitle: 'Competitive & Market Focus',
+      field: 'competitors',
+      question: "Who are your top 3-5 competitors?",
+      placeholder: "Enter competitor names (one per line or separated by commas)",
+      validation: () => ({ isValid: true }),
+      suggestions: ["Not sure? We can help identify them"]
+    },
+    {
+      id: 'geographic-markets',
+      phase: 4,
+      phaseTitle: 'Competitive & Market Focus',
+      field: 'geographicMarkets',
+      question: "Geographic markets of interest:",
+      placeholder: "",
+      validation: () => ({ isValid: true }),
+      suggestions: [],
+      isMultiSelect: true,
+      maxSelections: 6,
+      options: [
+        { id: 'north-america', label: 'North America', description: 'United States, Canada, Mexico' },
+        { id: 'europe', label: 'Europe', description: 'European Union and surrounding regions' },
+        { id: 'asia-pacific', label: 'Asia-Pacific', description: 'Asia and Pacific region countries' },
+        { id: 'latin-america', label: 'Latin America', description: 'Central and South America' },
+        { id: 'global', label: 'Global', description: 'Worldwide market coverage' },
+        { id: 'other', label: 'Other', description: 'Specific regions not listed above' }
+      ]
+    },
+    {
+      id: 'update-frequency',
+      phase: 5,
+      phaseTitle: 'Update Preferences',
+      field: 'updateFrequency',
+      question: "How often do you need research updates?",
+      placeholder: "",
+      validation: () => ({ isValid: true }),
+      suggestions: [],
+      options: [
+        { id: 'real-time', label: 'Real-time alerts for critical changes', description: 'Immediate notifications for important developments' },
+        { id: 'daily', label: 'Daily summary reports', description: 'Daily digest of key market updates' },
+        { id: 'weekly', label: 'Weekly comprehensive reports', description: 'Detailed weekly analysis and insights' },
+        { id: 'monthly', label: 'Monthly deep-dive analysis', description: 'In-depth monthly research reports' },
+        { id: 'quarterly', label: 'Quarterly strategic reviews', description: 'Comprehensive quarterly strategic analysis' }
       ]
     }
   ];

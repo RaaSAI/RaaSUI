@@ -48,10 +48,9 @@ function App() {
   const phases = [
     { number: 1, title: 'Basic Qualification', description: 'Email and company details' },
     { number: 2, title: 'Business Context', description: 'Industry and business model' },
-    { number: 3, title: 'Research Scope', description: 'Objectives and drivers' },
-    { number: 4, title: 'Market Focus', description: 'Competitors and geography' },
-    { number: 5, title: 'Preferences', description: 'Timeline and frequency' },
-    { number: 6, title: 'Budget & Expectations', description: 'Budget and requirements' }
+    { number: 3, title: 'Research Objectives', description: 'Primary research goals' },
+    { number: 4, title: 'Competitive & Market Focus', description: 'Competitors and geography' },
+    { number: 5, title: 'Update Preferences', description: 'Frequency and timeline' }
   ];
 
   const currentPhase = currentStepData?.phase || 1;
@@ -74,10 +73,10 @@ function App() {
       </div>
 
       {/* Phase Indicator */}
-      {emailVerification.isVerified && (
+      {emailVerification.isVerified && !isCompleted && (
         <PhaseIndicator
           currentPhase={currentPhase}
-          totalPhases={6}
+          totalPhases={5}
           phases={phases}
         />
       )}
@@ -99,7 +98,7 @@ function App() {
             ))}
 
             {/* Email Verification Component */}
-            {showEmailVerification && (
+            {showEmailVerification && !isCompleted && (
               <div className="max-w-[80%] mx-auto">
                 <EmailVerification
                   email={emailVerification.email}
@@ -113,7 +112,7 @@ function App() {
             )}
 
             {/* Single Select Component */}
-            {showSingleSelect && (
+            {showSingleSelect && !isCompleted && (
               <div className="max-w-[80%] mx-auto">
                 <SingleSelectComponent
                   options={currentStepData.options || []}
@@ -126,7 +125,7 @@ function App() {
             )}
 
             {/* Multi Select Component */}
-            {showMultiSelect && (
+            {showMultiSelect && !isCompleted && (
               <div className="max-w-[80%] mx-auto">
                 <MultiSelectComponent
                   options={currentStepData.options || []}
@@ -142,7 +141,7 @@ function App() {
           </div>
 
           {/* Input Area */}
-          {showChatInput && (
+          {showChatInput && !isCompleted && (
             <ChatInput
               onSendMessage={processUserInput}
               disabled={isProcessing}

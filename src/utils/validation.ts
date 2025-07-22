@@ -60,17 +60,11 @@ export const validateCompetitors = (input: string): ValidationResult => {
     return { isValid: true, extractedValue: "Need help identifying competitors" };
   }
   
-  // Split by common delimiters and clean up
-  const competitors = trimmed
-    .split(/[,;\n]/)
-    .map(c => c.trim())
-    .filter(c => c.length > 0);
-    
-  if (competitors.length === 0) {
+  if (trimmed.length === 0) {
     return { isValid: false, message: "Please list your competitors or let us know if you need help identifying them." };
   }
   
-  return { isValid: true, extractedValue: competitors };
+  return { isValid: true, extractedValue: trimmed };
 };
 
 export const validateKeyProducts = (input: string): ValidationResult => {
