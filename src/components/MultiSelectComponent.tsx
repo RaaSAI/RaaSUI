@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Check } from 'lucide-react';
 
 interface Option {
   id: string;
@@ -42,69 +43,91 @@ export const MultiSelectComponent: React.FC<MultiSelectComponentProps> = ({
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        {/* Header */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-          {subtitle && <p className="text-sm text-gray-600 mb-2">{subtitle}</p>}
-          <p className="text-sm text-blue-600">
-            Select up to {maxSelections} options ({selectedOptions.length}/{maxSelections} selected)
-          </p>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        {/* Selection Counter */}
+        <div className="px-6 pt-6 pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span className="text-sm font-medium text-gray-700">
+                {selectedOptions.length} of {maxSelections} selected
+              </span>
+            </div>
+            <div className="text-xs text-gray-500">
+              Select up to {maxSelections}
+            </div>
+          </div>
         </div>
 
-        {/* Options */}
-        <div className="space-y-3 mb-6">
-          {options.map((option) => {
-            const isSelected = selectedOptions.includes(option.id);
-            const isDisabled = !isSelected && selectedOptions.length >= maxSelections;
+        {/* Options Grid */}
+        <div className="px-6 pb-6">
+          <div className="grid gap-3 mb-6">
+            {options.map((option) => {
+              const isSelected = selectedOptions.includes(option.id);
+              const isDisabled = !isSelected && selectedOptions.length >= maxSelections;
 
-            return (
-              <label
-                key={option.id}
-                className={`block p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
-                  isSelected
-                    ? 'border-blue-500 bg-blue-50'
-                    : isDisabled
-                    ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => handleOptionToggle(option.id)}
-                    disabled={isDisabled}
-                    className="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                  <div className="flex-1">
-                    <div className={`font-medium ${
-                      isSelected ? 'text-blue-900' : 'text-gray-900'
+              return (
+                <div
+                  key={option.id}
+                  onClick={() => !isDisabled && handleOptionToggle(option.id)}
+                  className={`relative p-5 rounded-xl border-2 cursor-pointer transition-all duration-200 group ${
+                    isSelected
+                      ? 'border-blue-500 bg-blue-50 shadow-md'
+                      : isDisabled
+                      ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60'
+                      : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    {/* Custom Checkbox */}
+                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center mt-0.5 transition-all ${
+                      isSelected 
+                        ? 'border-blue-500 bg-blue-500' 
+                        : isDisabled
+                        ? 'border-gray-300 bg-gray-100'
+                        : 'border-gray-300 group-hover:border-gray-400'
                     }`}>
-                      {option.label}
+                      {isSelected && <Check className="w-3 h-3 text-white" />}
                     </div>
-                    {option.description && (
-                      <div className={`text-sm mt-1 ${
-                        isSelected ? 'text-blue-700' : 'text-gray-600'
+                    
+                    {/* Content */}
+                    <div className="flex-1">
+                      <h3 className={`font-semibold text-lg mb-1 ${
+                        isSelected 
+                          ? 'text-blue-900' 
+                          : isDisabled 
+                          ? 'text-gray-500' 
+                          : 'text-gray-900'
                       }`}>
-                        {option.description}
-                      </div>
-                    )}
+                        {option.label}
+                      </h3>
+                      {option.description && (
+                        <p className={`text-sm leading-relaxed ${
+                          isSelected 
+                            ? 'text-blue-700' 
+                            : isDisabled 
+                            ? 'text-gray-400' 
+                            : 'text-gray-600'
+                        }`}>
+                          {option.description}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </label>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
 
-        {/* Continue Button */}
-        <button
-          onClick={handleComplete}
-          disabled={selectedOptions.length === 0}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
-        >
-          Continue with {selectedOptions.length} selection{selectedOptions.length !== 1 ? 's' : ''}
-        </button>
+          {/* Continue Button */}
+          <button
+            onClick={handleComplete}
+            disabled={selectedOptions.length === 0}
+            className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
+          >
+            Continue with {selectedOptions.length} selection{selectedOptions.length !== 1 ? 's' : ''}
+          </button>
+        </div>
       </div>
     </div>
   );

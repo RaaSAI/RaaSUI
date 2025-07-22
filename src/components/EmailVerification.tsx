@@ -19,9 +19,17 @@ export const EmailVerification: React.FC<EmailVerificationProps> = ({
   onCodeVerify
 }) => {
   const [verificationCode, setVerificationCode] = useState('');
+  const [localError, setLocalError] = useState<string>('');
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
   const [isCodeExpired, setIsCodeExpired] = useState(false);
   const [isVerifyingCode, setIsVerifyingCode] = useState(false);
+
+  // Clear local error when user starts typing
+  const handleCodeChange = (value: string) => {
+    setVerificationCode(value);
+    if (localError) setLocalError('');
+    if (verificationError) setLocalError(''); // Clear any existing errors
+  };
 
   useEffect(() => {
     if (timeLeft > 0) {
@@ -41,21 +49,26 @@ export const EmailVerification: React.FC<EmailVerificationProps> = ({
   const handleCodeSubmit = async () => {
     if (verificationCode.trim().length === 6) {
       setIsVerifyingCode(true);
+      setLocalError('');
       try {
         const isValid = await onCodeVerify(email, verificationCode);
         if (isValid) {
           onVerificationComplete();
         } else {
+          setLocalError('Invalid verification code. Please check your email and try again.');
           setVerificationCode('');
         }
       } catch (error) {
         console.error('Error verifying code:', error);
+        setLocalError('Something went wrong. Please try again.');
         setVerificationCode('');
       } finally {
         setIsVerifyingCode(false);
       }
     }
   };
+
+  const displayError = localError || verificationError;
 
   const handleResend = () => {
     setTimeLeft(300);
@@ -89,21 +102,26 @@ export const EmailVerification: React.FC<EmailVerificationProps> = ({
             <input
               type="text"
               value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onChange={(e) => handleCodeChange(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="000000"
               className={`w-full px-3 py-2 border rounded-md text-center text-lg font-mono tracking-widest focus:outline-none focus:ring-2 focus:border-transparent ${
-                verificationError 
+                displayError 
                   ? 'border-red-300 focus:ring-red-500' 
                   : 'border-gray-300 focus:ring-blue-500'
               }`}
               maxLength={6}
               disabled={isVerifyingCode || isCodeExpired}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && verificationCode.length === 6) {
+                  handleCodeSubmit();
+                }
+              }}
             />
             
-            {verificationError && (
-              <div className="mt-2 flex items-center gap-2 text-sm text-red-600">
+            {displayError && (
+              <div className="mt-3 flex items-start gap-2 text-sm text-red-600 bg-red-50 p-3 rounded-lg">
                 <AlertCircle className="w-4 h-4" />
-                <span>{verificationError}</span>
+                <span>{displayError}</span>
               </div>
             )}
           </div>

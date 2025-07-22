@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Check } from 'lucide-react';
 
 interface Option {
   id: string;
@@ -34,7 +35,8 @@ export const SingleSelectComponent: React.FC<SingleSelectComponentProps> = ({
     } else {
       setShowOtherInput(false);
       setOtherValue('');
-      onSelectionComplete(optionId);
+      // Auto-submit after selection
+      setTimeout(() => onSelectionComplete(optionId), 300);
     }
   };
 
@@ -52,108 +54,112 @@ export const SingleSelectComponent: React.FC<SingleSelectComponentProps> = ({
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        {/* Header */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-          {subtitle && <p className="text-sm text-gray-600">{subtitle}</p>}
-        </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        {/* Options Grid */}
+        <div className="p-6">
+          <div className="grid gap-3">
+            {options.map((option) => {
+              const isSelected = selectedOption === option.id;
 
-        {/* Options */}
-        <div className="space-y-3">
-          {options.map((option) => {
-            const isSelected = selectedOption === option.id;
-
-            return (
-              <label
-                key={option.id}
-                className={`block p-4 border rounded-lg cursor-pointer transition-all duration-200 hover:border-gray-300 ${
-                  isSelected
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 bg-white'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <input
-                    type="radio"
-                    name="single-select"
-                    value={option.id}
-                    checked={isSelected}
-                    onChange={() => handleOptionSelect(option.id)}
-                    className="mt-1 w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                  />
-                  <div className="flex-1">
-                    <div className={`font-medium ${
-                      isSelected ? 'text-blue-900' : 'text-gray-900'
+              return (
+                <div
+                  key={option.id}
+                  onClick={() => handleOptionSelect(option.id)}
+                  className={`relative p-5 rounded-xl border-2 cursor-pointer transition-all duration-200 group hover:shadow-md ${
+                    isSelected
+                      ? 'border-blue-500 bg-blue-50 shadow-md'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    {/* Custom Radio Button */}
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 transition-all ${
+                      isSelected 
+                        ? 'border-blue-500 bg-blue-500' 
+                        : 'border-gray-300 group-hover:border-gray-400'
                     }`}>
-                      {option.label}
+                      {isSelected && <Check className="w-3 h-3 text-white" />}
                     </div>
-                    {option.description && (
-                      <div className={`text-sm mt-1 ${
-                        isSelected ? 'text-blue-700' : 'text-gray-600'
+                    
+                    {/* Content */}
+                    <div className="flex-1">
+                      <h3 className={`font-semibold text-lg mb-1 ${
+                        isSelected ? 'text-blue-900' : 'text-gray-900'
                       }`}>
-                        {option.description}
-                      </div>
-                    )}
+                        {option.label}
+                      </h3>
+                      {option.description && (
+                        <p className={`text-sm leading-relaxed ${
+                          isSelected ? 'text-blue-700' : 'text-gray-600'
+                        }`}>
+                          {option.description}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </label>
-            );
-          })}
+              );
+            })}
 
-          {allowOther && (
-            <label
-              className={`block p-4 border rounded-lg cursor-pointer transition-all duration-200 hover:border-gray-300 ${
-                selectedOption === 'other'
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 bg-white'
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                <input
-                  type="radio"
-                  name="single-select"
-                  value="other"
-                  checked={selectedOption === 'other'}
-                  onChange={() => handleOptionSelect('other')}
-                  className="mt-1 w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                />
-                <div className="flex-1">
-                  <div className={`font-medium ${
-                    selectedOption === 'other' ? 'text-blue-900' : 'text-gray-900'
+            {allowOther && (
+              <div
+                onClick={() => handleOptionSelect('other')}
+                className={`relative p-5 rounded-xl border-2 cursor-pointer transition-all duration-200 group hover:shadow-md ${
+                  selectedOption === 'other'
+                    ? 'border-blue-500 bg-blue-50 shadow-md'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  {/* Custom Radio Button */}
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 transition-all ${
+                    selectedOption === 'other'
+                      ? 'border-blue-500 bg-blue-500' 
+                      : 'border-gray-300 group-hover:border-gray-400'
                   }`}>
-                    Other
+                    {selectedOption === 'other' && <Check className="w-3 h-3 text-white" />}
                   </div>
-                  <div className={`text-sm mt-1 ${
-                    selectedOption === 'other' ? 'text-blue-700' : 'text-gray-600'
-                  }`}>
-                    Specify your own option
+                  
+                  {/* Content */}
+                  <div className="flex-1">
+                    <h3 className={`font-semibold text-lg mb-1 ${
+                      selectedOption === 'other' ? 'text-blue-900' : 'text-gray-900'
+                    }`}>
+                      Other
+                    </h3>
+                    <p className={`text-sm leading-relaxed ${
+                      selectedOption === 'other' ? 'text-blue-700' : 'text-gray-600'
+                    }`}>
+                      Specify your own option
+                    </p>
                   </div>
                 </div>
               </div>
-            </label>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Other Input */}
         {showOtherInput && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
-            <input
-              type="text"
-              value={otherValue}
-              onChange={(e) => setOtherValue(e.target.value)}
-              onKeyPress={handleOtherKeyPress}
-              placeholder={otherPlaceholder}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              autoFocus
-            />
-            <button
-              onClick={handleOtherSubmit}
-              disabled={!otherValue.trim()}
-              className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
-            >
-              Continue
-            </button>
+          <div className="px-6 pb-6">
+            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+              <input
+                type="text"
+                value={otherValue}
+                onChange={(e) => setOtherValue(e.target.value)}
+                onKeyPress={handleOtherKeyPress}
+                placeholder={otherPlaceholder}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                autoFocus
+              />
+              <button
+                onClick={handleOtherSubmit}
+                disabled={!otherValue.trim()}
+                className="mt-3 w-full px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
+              >
+                Continue
+              </button>
+            </div>
           </div>
         )}
       </div>
