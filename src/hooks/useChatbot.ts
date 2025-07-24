@@ -323,7 +323,7 @@ const sendVerificationEmail = useCallback(async (email: string) => {
       }));
       
       addMessage(
-        `Perfect! I've sent a verification email to ${email}. Please check your email and either click the verification link or enter the 6-digit code below to continue.`,
+        `Perfect! I've sent a verification email to ${email}. Please check your email and enter the 6-digit code below to continue.`,
         'bot'
       );
     } else {
