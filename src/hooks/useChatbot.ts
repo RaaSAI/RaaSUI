@@ -6,9 +6,9 @@ import { validateEmail, validateCompanyName, validateIndustry, validateResearchT
 import { fetchIpGeoData } from '../utils/ipGeo';
 
 // n8n webhook URLs
-const SEND_VERIFICATION_WEBHOOK = 'https://sharifaistarttest1.app.n8n.cloud/webhook/send-verification-email';
-const VERIFY_CODE_WEBHOOK = 'https://sharifaistarttest1.app.n8n.cloud/webhook/verify-email';
-const FINAL_WEBHOOK_URL = 'https://sharifaistarttest1.app.n8n.cloud/webhook/client-onboarding';
+const SEND_VERIFICATION_WEBHOOK = 'http://188.34.180.251:5678/webhook/send-verification-email';
+const VERIFY_CODE_WEBHOOK = 'http://188.34.180.251:5678/webhook/verify-email';
+const FINAL_WEBHOOK_URL = 'http://188.34.180.251:5678/webhook/client-onboarding';
 
 export const useChatbot = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
