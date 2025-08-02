@@ -152,17 +152,73 @@ function App() {
 
           {/* Completion Message */}
           {isCompleted && (
-            <div className="p-6 bg-green-50 border-t border-green-200">
-              <div className="max-w-2xl mx-auto text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Brain className="w-8 h-8 text-green-600" />
+            <div className="fixed inset-0 bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center z-50">
+              <div className="max-w-2xl mx-auto p-8 text-center">
+                <div className="w-24 h-24 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <Brain className="w-12 h-12 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-green-900 mb-2">
-                  Onboarding Complete!
-                </h3>
-                <p className="text-green-700">
-                  Thank you for choosing our research services. We'll be in touch soon with your research proposal.
-                </p>
+                
+                <div className="mb-6">
+                  <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    🎉 Onboarding Complete!
+                  </h1>
+                  <div className="w-24 h-1 bg-gradient-to-r from-green-500 to-emerald-600 mx-auto rounded-full mb-6"></div>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
+                  <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+                    Thank you, {clientData.companyName || 'valued client'}!
+                  </h2>
+                  
+                  <div className="space-y-4 text-gray-700">
+                    <p className="text-lg">
+                      We've successfully received your research requirements and are excited to help you unlock valuable market insights.
+                    </p>
+                    
+                    <div className="bg-gray-50 rounded-lg p-4 text-left">
+                      <h3 className="font-semibold text-gray-800 mb-2">What happens next:</h3>
+                      <ul className="space-y-2 text-sm">
+                        <li className="flex items-start">
+                          <span className="text-green-600 mr-2">✓</span>
+                          Our research team will review your requirements within 24 hours
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-600 mr-2">✓</span>
+                          We'll prepare a customized research proposal for your {clientData.industry || 'industry'} needs
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-600 mr-2">✓</span>
+                          You'll receive a detailed proposal and timeline at <strong>{clientData.email}</strong>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-600 mr-2">✓</span>
+                          Our team will schedule a consultation call to discuss your project
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    <div className="pt-4 border-t border-gray-200">
+                      <p className="text-sm text-gray-600">
+                        <strong>Contact Information:</strong> {clientData.email}
+                      </p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        <strong>Reference ID:</strong> RaaS-{Date.now().toString().slice(-6)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <p className="text-gray-600 mb-4">
+                    Questions? Contact our team at <a href="mailto:support@raas.ai" className="text-blue-600 hover:underline">support@raas.ai</a>
+                  </p>
+                  <button 
+                    onClick={() => window.location.reload()} 
+                    className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg"
+                  >
+                    Start New Onboarding
+                  </button>
+                </div>
               </div>
             </div>
           )}

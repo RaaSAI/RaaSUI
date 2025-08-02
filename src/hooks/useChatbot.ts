@@ -23,6 +23,7 @@ export const useChatbot = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const initializationRef = useRef(false);
+  const onboardingSubmittedRef = useRef(false);
 
   const anthropicService = new AnthropicService();
   const nlpProcessor = new NLPProcessor();
@@ -408,6 +409,14 @@ const sendVerificationEmail = useCallback(async (email: string) => {
   }, [emailVerification.email, sendVerificationEmail, addMessage]);
 
   const completeOnboarding = useCallback(async () => {
+    // Prevent duplicate submissions
+    if (onboardingSubmittedRef.current) {
+      console.log('Onboarding already submitted, skipping duplicate call');
+      return;
+    }
+    
+    onboardingSubmittedRef.current = true;
+    
     try {
       const requiredFields = ['email', 'companyName', 'industry', 'businessModel', 'researchDriver'];
       const missingFields = requiredFields.filter(field => !clientData[field as keyof ClientData]);
@@ -428,11 +437,7 @@ const sendVerificationEmail = useCallback(async (email: string) => {
         researchObjectives: clientData.researchObjectives || [],
         competitors: clientData.competitors || [],
         geographicMarkets: clientData.geographicMarkets || [],
-        keyProducts: clientData.keyProducts || '',
         updateFrequency: clientData.updateFrequency || '',
-        timeline: clientData.timeline || '',
-        budgetRange: clientData.budgetRange || '',
-        additionalRequirements: clientData.additionalRequirements || '',
         ipAddress: clientData.ipAddress || '',
         country: clientData.country || '',
         city: clientData.city || '',
@@ -461,7 +466,7 @@ const sendVerificationEmail = useCallback(async (email: string) => {
       console.error('Error sending to webhook:', error);
       setIsCompleted(true);
     }
-  }, [clientData, addMessage]);
+  }, [clientData]);
 
   const moveToNextStep = useCallback(() => {
     setCurrentStep(prev => {
